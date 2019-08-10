@@ -56,8 +56,7 @@ class JobController extends AppAbstractRestfulController
 
         $cartOwner = $this->cartTable->getCustomerIdByCart($cart_id);
 
-        $authHeader = $this->getRequest()->getHeader('Authorization');
-        $customer_id = $this->tokenService->getCustomerIdInAccessToken($authHeader);
+        $customer_id = $this->getCustomerIdFromHeader();
 
         if ($customer_id != $cartOwner) {
             return $this->createResponse(403, 'Forbidden');
@@ -69,6 +68,7 @@ class JobController extends AppAbstractRestfulController
             return $this->createResponse(403, 'Shipping details not found. Please proceed to shipping page.');
         }
 
+        // Move calculateShippingTotal to CartService
         $cart->shipping_total = $this->shippingService->calculateShippingTotal(
             $cart->total_weight,
             $cart->shipping_method

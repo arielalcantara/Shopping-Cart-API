@@ -66,7 +66,7 @@ class CartController extends AppAbstractRestfulController
         if (!$this->cartFilter->isValid()) {
             return $this->createResponse(400, 'Invalid input.');
         }
-
+        // Refactor
         $product_id = $inputArray['product_id'];
         $qty = $inputArray['qty'];
         $cart_id = $inputArray['cart_id'];
@@ -87,21 +87,21 @@ class CartController extends AppAbstractRestfulController
 
         $cartItemArray = $this->productService->computeProductWeightAndPrice($productArray, $qty);
 
-        $authHeader = $this->getRequest()->getHeader('Authorization');
-        $customer_id = $this->tokenService->getCustomerIdInAccessToken($authHeader);
+        $customer_id = $this->getCustomerIdFromHeader();
 
         // Cart
         if ($cart_id) {
             $cart = $this->cartTable->fetchCartTotalsAndCustomerId($cart_id);
 
             if ($customer_id != $cart->customer_id) {
+                // Create new cart for customer
                 return $this->createResponse(403, 'Forbidden');
             }
 
             $cart = $this->cartService->computeTotals($cartItemArray, $cart);
-
+            // Refactor shipping
             if ($cart->shipping_total > 0) {
-                $cart->shipping_method = $this->cartTable->fetchCartShippingMethod($cart_id);
+                $cart->shipping_method = $this->cartTable->fetchCartShippingMethod($cart_id); //remove
                 $cart->shipping_total = $this->shippingService->calculateShippingTotal(
                     $cart->total_weight,
                     $cart->shipping_method
@@ -111,10 +111,10 @@ class CartController extends AppAbstractRestfulController
             $this->cartTable->updateCart($cart_id, $cart);
         } else {
             if ($customer_id) {
-                $customerArray = $this->customerTable->fetchCustomerInfo($customer_id);
+                $customerArray = $this->customerTable->fetchCustomerInfo($customer_id); //fetchCustomerInfo with id
 
                 $this->cart->exchangeArray($customerArray);
-                $this->cart->customer_id = $customer_id;
+                $this->cart->customer_id = $customer_id; //remove
             } else {
                 $cart->customer_id = $customer_id;
             }
@@ -124,7 +124,7 @@ class CartController extends AppAbstractRestfulController
             $cart_id = $this->cartTable->insertCart($cart);
         }
 
-        // Cart Item
+        // Cart Item (refactor to single service)
         $this->cartItem->exchangeArray($cartItemArray);
         $this->cartItem->cart_id = $cart_id;
         $this->cartItem->product_id = $product_id;
@@ -153,8 +153,7 @@ class CartController extends AppAbstractRestfulController
     {
         $cartOwner = $this->cartTable->getCustomerIdByCart($cart_id);
 
-        $authHeader = $this->getRequest()->getHeader('Authorization');
-        $customer_id = $this->tokenService->getCustomerIdInAccessToken($authHeader);
+        $customer_id = $this->getCustomerIdFromHeader();
 
         if ($customer_id != $cartOwner) {
             return $this->createResponse(403, 'Forbidden');

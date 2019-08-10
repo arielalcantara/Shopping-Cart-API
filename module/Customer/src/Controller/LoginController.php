@@ -49,10 +49,11 @@ class LoginController extends AppAbstractRestfulController
         }
 
         if ($customerArray['password'] != $inputArray['password']) {
-            return $this->createResponse(401, 'Incorrect password.');
+            return $this->createResponse(400, 'Incorrect password.');
         }
 
         if ($inputArray['cart_id']) {
+            // Validate that cart is customer's
             $this->cartTable->updateCartCustomerIdByCart($customerArray['customer_id'], $inputArray['cart_id']);
         }
 

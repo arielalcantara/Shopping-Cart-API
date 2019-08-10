@@ -59,6 +59,7 @@ class RegistrationController extends AppAbstractRestfulController
         $customerArray = $this->customerTable->fetchCustomerIdAndFirstNameByEmail($this->customer->email);
 
         if ($inputArray['cart_id']) {
+            // Validate that cart_id is customer's
             $this->cartTable->updateCartCustomerIdByCart($customerArray['customer_id'], $inputArray['cart_id']);
         }
 

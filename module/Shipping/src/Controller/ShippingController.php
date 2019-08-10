@@ -46,8 +46,7 @@ class ShippingController extends AppAbstractRestfulController
     {
         $cartOwner = $this->cartTable->getCustomerIdByCart($cart_id);
 
-        $authHeader = $this->getRequest()->getHeader('Authorization');
-        $customer_id = $this->tokenService->getCustomerIdInAccessToken($authHeader);
+        $customer_id = $this->getCustomerIdFromHeader();
 
         if ($customer_id != $cartOwner) {
             return $this->createResponse(403, 'Forbidden');

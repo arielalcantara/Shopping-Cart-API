@@ -200,4 +200,9 @@ abstract class AppAbstractRestfulController extends AbstractRestfulController
     {
         return $this->createResponse(403, 'Access Code Error');
     }
+
+    public function getCustomerIdFromHeader() {
+        $authHeader = $this->getRequest()->getHeader('Authorization');
+        return $this->tokenService->getCustomerIdInAccessToken($authHeader);
+    }
 }
