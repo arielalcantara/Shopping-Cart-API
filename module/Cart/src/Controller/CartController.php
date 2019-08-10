@@ -92,13 +92,12 @@ class CartController extends AppAbstractRestfulController
 
         // Cart
         if ($cart_id) {
-            $cartOwner = $this->cartTable->getCustomerIdByCart($cart_id);
+            $cart = $this->cartTable->fetchCartTotalsAndCustomerId($cart_id);
 
-            if ($customer_id != $cartOwner) {
+            if ($customer_id != $cart->customer_id) {
                 return $this->createResponse(403, 'Forbidden');
             }
 
-            $cart = $this->cartTable->fetchCartTotals($cart_id);
             $cart = $this->cartService->computeTotals($cartItemArray, $cart);
 
             if ($cart->shipping_total > 0) {

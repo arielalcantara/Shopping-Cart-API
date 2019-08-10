@@ -144,6 +144,19 @@ class CartTable
         return $result;
     }
 
+    public function getCustomerIdByCart($cart_id)
+    {
+        $cart_id = (int) $cart_id;
+        $select = $this->tableGateway->getSql()->select()->columns([
+            'customer_id'
+        ])->where([
+            'cart_id' => $cart_id
+        ]);
+        $result = $this->tableGateway->selectWith($select)->getDataSource()->current();
+
+        return $result['customer_id'];
+    }
+
     public function updateCartShippingDetails($cart_id, $cart)
     {
         $data = [
@@ -200,24 +213,20 @@ class CartTable
         return $result['shipping_method'];
     }
 
-    public function getCart($where)
-    {
-        $select = $this->tableGateway->getSql()->select()->where($where);
-        $result = $this->tableGateway->selectWith($select)->getDataSource()->current();
-
-        return $result;
-    }
-
-    public function getCartByCustomer($cart_id)
+    public function fetchCartTotalsAndCustomerId($cart_id)
     {
         $cart_id = (int) $cart_id;
         $select = $this->tableGateway->getSql()->select()->columns([
+            'sub_total',
+            'shipping_total',
+            'total_amount',
+            'total_weight',
             'customer_id'
         ])->where([
             'cart_id' => $cart_id
         ]);
-        $result = $this->tableGateway->selectWith($select)->getDataSource()->current();
+        $result = $this->tableGateway->selectWith($select)->current();
 
-        return $result['customer_id'];
+        return $result;
     }
 }
