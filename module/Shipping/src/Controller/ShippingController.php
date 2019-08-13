@@ -10,11 +10,11 @@ use Cart\Model\Cart;
 use Shipping\Service\ShippingService;
 use Cart\Service\CartService;
 use Auth\Service\TokenService;
-
+use Zend\View\Helper\Json;
 
 class ShippingController extends AppAbstractRestfulController
 {
-    protected $eventIdentifier = 'SecuredController';
+    // protected $eventIdentifier = 'SecuredController';
 
     private $shippingFilter;
     private $shippingTable;
@@ -22,7 +22,7 @@ class ShippingController extends AppAbstractRestfulController
     private $cart;
     private $shippingService;
     private $cartService;
-    private $tokenService;
+    public $tokenService;
 
     public function __construct(
         ShippingFilter $shippingFilter,
@@ -44,16 +44,32 @@ class ShippingController extends AppAbstractRestfulController
 
     public function get($cart_id)
     {
-        $customer_id = $this->getCustomerIdFromHeader();
+        // $customer_id = $this->getCustomerIdFromHeader();
 
-        $cart = $this->cartTable->getCart($cart_id, $customer_id = 0);
+        // $cart = $this->cartTable->getCart($cart_id, $customer_id = 0);
+
+        $this->cartService->calculateShippingTotals(5);
+        exit;
+
 
         if ($cart) {
             return $this->createResponse(403, 'Forbidden');
         }
 
+        foreach ($shippingOptions as $shippingOption) {
+            $shippingTotals[$shippingOption['shipping_method']] =
+                $this->shippingService->calculateShippingTotal(
+                    $cart['total_weight'],
+                    $shippingOption['shipping_method']
+                );
+        }
 
+        $data = [
+            'success' => true,
+            'data' => $shippingTotals
+        ];
 
+        return new JsonModel($data);
 
 
         // Start of previous code

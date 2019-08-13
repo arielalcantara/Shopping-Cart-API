@@ -15,6 +15,8 @@ class ShippingService
     public function calculateShippingTotal($total_weight, $shipping_method)
     {
         $shippings = $this->shippingTable->fetchAllShippingRecords();
+        $i = 'hello';
+        var_dump($i); exit;
 
         // Perform when total weight is within allowed weight per shipment
         foreach ($shippings as $shipping) {

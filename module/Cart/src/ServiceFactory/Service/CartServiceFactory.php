@@ -8,6 +8,8 @@ class CartServiceFactory
 {
     public function __invoke(ContainerInterface $container)
     {
-        return new CartService();
+        $shippingTable = $container->get(ShippingTable::class);
+
+        return new CartService($shippingTable);
     }
 }

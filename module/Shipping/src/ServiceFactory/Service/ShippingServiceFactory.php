@@ -9,7 +9,7 @@ class ShippingServiceFactory
 {
     public function __invoke(ContainerInterface $container)
     {
-        // $container = $container->getServiceLocator(); // remove if zf3
+        $container = $container->getServiceLocator(); // remove if zf3
         $shippingTable = $container->get(ShippingTable::class);
 
         return new ShippingService($shippingTable);

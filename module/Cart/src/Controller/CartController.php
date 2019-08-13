@@ -29,7 +29,7 @@ class CartController extends AppAbstractRestfulController
     private $customerTable;
     private $cart;
     private $cartItem;
-    private $tokenService;
+    public $tokenService;
 
     public function __construct(
         CartFilter $cartFilter,
