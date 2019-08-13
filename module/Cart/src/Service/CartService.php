@@ -27,11 +27,26 @@ class CartService
 
     public function calculateShippingTotals($cart, $shipping_method = '')
     {
-        $shipping = $this->shippingService->fetchShippings();
+        $shippings = $this->shippingService->fetchShippings();
+        $shippingsArray = [];
 
         if (!$shipping_method) {
             foreach ($shippings as $shipping) {
-                if ($shipping['shipping_method'] == )
+                i = 0;
+                if ($shipping['shipping_method'] !== $shippingsArray[i]) {
+                    $shippingsArray = [$shipping['shipping_method']];
+                }
+                if ($shipping['shipping_method'] === $shippingsArray[i]) {
+                    $shippingsArray[[
+                        'min_weight' => $shipping['min_weight'],
+                        'max_weight' => $shipping['max_weight'],
+                        'shipping_rate' => $shipping['shipping_rate']
+                    ]];
+                } else {
+                    $shippingsArray = [$shipping['shipping_method']];
+                }
+                // if ($shipping['shipping_method'] != )
+                i++;
             }
         }
 
