@@ -44,6 +44,19 @@ class ShippingController extends AppAbstractRestfulController
 
     public function get($cart_id)
     {
+        $customer_id = $this->getCustomerIdFromHeader();
+
+        $cart = $this->cartTable->getCart($cart_id, $customer_id = 0);
+
+        if ($cart) {
+            return $this->createResponse(403, 'Forbidden');
+        }
+
+
+
+
+
+        // Start of previous code
         $cartOwner = $this->cartTable->getCustomerIdByCart($cart_id);
 
         $customer_id = $this->getCustomerIdFromHeader();
@@ -53,8 +66,8 @@ class ShippingController extends AppAbstractRestfulController
         }
 
         $cart = $this->cartTable->fetchCartTotalWeight($cart_id);
-
-        $shippingOptions = $this->shippingTable->fetchShippingMethods();
+        // Refactor
+        $shippingOptions = $this->shippingTable->fetchShippingMethods(); // remove, fetch only inside shippingService
 
         foreach ($shippingOptions as $shippingOption) {
             $shippingTotals[$shippingOption['shipping_method']] =

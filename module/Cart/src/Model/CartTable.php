@@ -229,4 +229,36 @@ class CartTable
 
         return $result;
     }
+
+    public function getCart($cart_id, $customer_id = 0)
+    {
+        $cart_id = (int) $cart_id;
+        $select = $this->tableGateway->getSql()->select()->columns([
+            'customer_id',
+            'order_datetime',
+            'sub_total',
+            'shipping_total',
+            'total_amount',
+            'total_weight',
+            'company_name',
+            'email',
+            'first_name',
+            'last_name',
+            'phone',
+            'shipping_method',
+            'shipping_name',
+            'shipping_address1',
+            'shipping_address2',
+            'shipping_address3',
+            'shipping_city',
+            'shipping_state',
+            'shipping_country'
+        ])->where([
+            'cart_id' => $cart_id,
+            'customer_id' => $customer_id
+        ]);
+        $result = $this->tableGateway->selectWith($select)->current();
+
+        return $result;
+    }
 }
