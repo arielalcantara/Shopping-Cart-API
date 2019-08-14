@@ -5,6 +5,7 @@ namespace Application\Controller;
 use Zend\Mvc\Controller\AbstractRestfulController;
 use ZF\ApiProblem\ApiProblem;
 use ZF\ApiProblem\ApiProblemResponse;
+use Auth\Service\TokenService;
 
 /**
  * Class AppAbstractRestfulController
@@ -203,6 +204,7 @@ abstract class AppAbstractRestfulController extends AbstractRestfulController
 
     public function getCustomerIdFromHeader() {
         $authHeader = $this->getRequest()->getHeader('Authorization');
-        return $this->tokenService->getCustomerIdInAccessToken($authHeader);
+        $tokenService = $this->getServiceLocator()->get(TokenService::class);
+        return $tokenService->getCustomerIdInAccessToken($authHeader);
     }
 }

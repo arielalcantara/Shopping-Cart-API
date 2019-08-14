@@ -5,6 +5,8 @@ use Shipping\Model\ShippingTable;
 
 class CartService
 {
+    private $shippingTable;
+
     public function __construct(ShippingTable $shippingTable) {
         $this->shippingTable = $shippingTable;
     }
@@ -35,27 +37,54 @@ class CartService
     {
         $shippings = $this->shippingTable->fetchShippings();
         $shippingsArray = [];
+        $ifExcess = false;
 
         if (!$shipping_method) {
             foreach ($shippings as $shipping) {
                 $shippingsArray[$shipping['shipping_method']][] = [
-                        'min_weight' => $shipping['min_weight'],
-                        'max_weight' => $shipping['max_weight'],
-                        'shipping_rate' => $shipping['shipping_rate']
+                    'min_weight' => $shipping['min_weight'],
+                    'max_weight' => $shipping['max_weight'],
+                    'shipping_rate' => $shipping['shipping_rate']
                 ];
-                var_dump($shippingsArray);
 
-                // if ($shipping['shipping_method'] !== $shippingsArray['shipping_method']) {
-                //     $shippingsArray['shipping_method'] = $shipping['shipping_method'];
-                // }
-                // $shippingsArray[][i] = [
-                //     'min_weight' => $shipping['min_weight'],
-                //     'max_weight' => $shipping['max_weight'],
-                //     'shipping_rate' => $shipping['shipping_rate']
-                // ];
-                // i++;
+                // Check if total_weight is within shippingsArrays max and min weight
+            }
+
+            echo '<pre>';
+            var_dump($shippingsArray);
+            echo '</pre>'; exit;
+        }
+
+        // Perform when total weight is within allowed weight per shipment
+        foreach ($shippings as $shipping) {
+            if ($total_weight >= $shipping['min_weight'] && $total_weight <= $shipping['max_weight']) {
+                $shippingTotals[$shipping['shipping_method']] = $shipping['shipping_rate'];
+                break;
+            } else {
+                $ifExcess = true;
+            }
+            $maxWeightPerShipment = $shipping['max_weight'];
+            $maxRatePerShipment = $shipping['shipping_rate'];
+        }
+
+        // Perform when total weight exceeds allowed max weight per shipment
+        if ($ifExcess) {
+            $numOfShipments = floor($total_weight / $maxWeightPerShipment);
+            $shippingTotals[$shipping['shipping_method']] = $numOfShipments * $maxRatePerShipment;
+            $remainingWeight = $total_weight % $maxWeightPerShipment;
+
+            if ($remainingWeight) {
+                foreach ($shippings as $shipping) {
+                    if ($remainingWeight >= $shipping['min_weight'] && $remainingWeight <= $shipping['max_weight']) {
+                        $shippingTotals[$shipping['shipping_method']] += $shipping['shipping_rate'];
+                        break;
+                    }
+                }
             }
         }
+
+        // return $shippingTotals[$shipping['shipping_method']];
+        // }
     }
 
     public function calculateShippingTotal($total_weight, $shipping_method = '')

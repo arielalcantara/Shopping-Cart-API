@@ -7,9 +7,7 @@ use Shipping\Filter\ShippingFilter;
 use Shipping\Model\ShippingTable;
 use Cart\Model\CartTable;
 use Cart\Model\Cart;
-use Shipping\Service\ShippingService;
 use Cart\Service\CartService;
-use Auth\Service\TokenService;
 
 class ShippingControllerFactory
 {
@@ -20,18 +18,14 @@ class ShippingControllerFactory
         $shippingTable = $container->get(ShippingTable::class);
         $cartTable = $container->get(CartTable::class);
         $cart = new Cart;
-        $shippingService = $container->get(ShippingService::class);
         $cartService = $container->get(CartService::class);
-        $tokenService = $container->get(TokenService::class);
 
         return new ShippingController(
             $shippingFilter,
             $shippingTable,
             $cartTable,
             $cart,
-            $shippingService,
-            $cartService,
-            $tokenService
+            $cartService
         );
     }
 }
