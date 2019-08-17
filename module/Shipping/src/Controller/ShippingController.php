@@ -7,7 +7,7 @@ use Shipping\Filter\ShippingFilter;
 use Shipping\Model\ShippingTable;
 use Cart\Model\CartTable;
 use Cart\Model\Cart;
-use Cart\Service\CartService;
+use Shipping\Service\ShippingService;
 use Zend\View\Helper\Json;
 
 class ShippingController extends AppAbstractRestfulController
@@ -18,35 +18,36 @@ class ShippingController extends AppAbstractRestfulController
     private $shippingTable;
     private $cartTable;
     private $cart;
-    private $cartService;
+    private $shippingService;
 
     public function __construct(
         ShippingFilter $shippingFilter,
         ShippingTable $shippingTable,
         CartTable $cartTable,
         Cart $cart,
-        CartService $cartService
+        ShippingService $shippingService
     ) {
         $this->shippingFilter = $shippingFilter;
         $this->shippingTable = $shippingTable;
         $this->cartTable = $cartTable;
         $this->cart = $cart;
-        $this->cartService = $cartService;
+        $this->shippingService = $shippingService;
     }
 
     public function get($cart_id)
     {
         $customer_id = $this->getCustomerIdFromHeader();
 
-        $cart = $this->cartTable->getCart($cart_id, $customer_id = 0);
+        $cart = $this->cartTable->getCart($cart_id, $customer_id = '1');
+        // var_dump($cart); exit;
+        if (!$cart) {
+            return $this->createResponse(403, 'Forbidden');
+        }
 
-        $this->cartService->calculateShippingTotals($cart);
+        $this->shippingService->calculateShippingTotals($cart, $cart->shipping_method);
         exit;
 
 
-        // if ($cart) {
-        //     return $this->createResponse(403, 'Forbidden');
-        // }
 
         // foreach ($shippingOptions as $shippingOption) {
         //     $shippingTotals[$shippingOption['shipping_method']] =
@@ -119,7 +120,7 @@ class ShippingController extends AppAbstractRestfulController
     //         $this->cart->shipping_method
     //     );
 
-    //     $this->cart->total_amount = $this->cartService->computeTotalAmount(
+    //     $this->cart->total_amount = $this->shippingService->computeTotalAmount(
     //         $cart['sub_total'],
     //         $this->cart->shipping_total
     //     );

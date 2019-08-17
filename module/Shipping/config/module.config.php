@@ -7,6 +7,8 @@ use Shipping\ServiceFactory\Controller\ShippingControllerFactory;
 use Shipping\Model\ShippingTable;
 use Shipping\ServiceFactory\Model\ShippingTableFactory;
 use Shipping\Filter\ShippingFilter;
+use Shipping\Service\ShippingService;
+use Shipping\ServiceFactory\Service\ShippingServiceFactory;
 
 return [
     'router' => [
@@ -32,7 +34,8 @@ return [
     ],
     'service_manager' => [
         'factories' => [
-            ShippingTable::class => ShippingTableFactory::class
+            ShippingTable::class => ShippingTableFactory::class,
+            ShippingService::class => ShippingServiceFactory::class
         ],
         'invokables' => [
             ShippingFilter::class => ShippingFilter::class

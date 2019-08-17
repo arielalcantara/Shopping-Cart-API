@@ -7,7 +7,7 @@ use Shipping\Filter\ShippingFilter;
 use Shipping\Model\ShippingTable;
 use Cart\Model\CartTable;
 use Cart\Model\Cart;
-use Cart\Service\CartService;
+use Shipping\Service\ShippingService;
 
 class ShippingControllerFactory
 {
@@ -18,14 +18,14 @@ class ShippingControllerFactory
         $shippingTable = $container->get(ShippingTable::class);
         $cartTable = $container->get(CartTable::class);
         $cart = new Cart;
-        $cartService = $container->get(CartService::class);
+        $shippingService = $container->get(ShippingService::class);
 
         return new ShippingController(
             $shippingFilter,
             $shippingTable,
             $cartTable,
             $cart,
-            $cartService
+            $shippingService
         );
     }
 }

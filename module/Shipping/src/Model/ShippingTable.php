@@ -13,7 +13,7 @@ class ShippingTable
         $this->tableGateway = $tableGateway;
     }
 
-    public function fetchAllShippingRecords($shipping_method = '')
+    public function fetchShippings($shipping_method = '')
     {
         $select = $this->tableGateway->getSql()->select()->columns([
             'min_weight',
@@ -32,19 +32,19 @@ class ShippingTable
         return $resultArray;
     }
 
-    public function fetchShippings()
-    {
-        $select = $this->tableGateway->getSql()->select()->columns([
-            'min_weight',
-            'max_weight',
-            'shipping_method',
-            'shipping_rate'
-        ]);
-        $resultSet = $this->tableGateway->selectWith($select)->getDataSource();
-        $resultArray = iterator_to_array($resultSet);
+    // public function fetchShippings()
+    // {
+    //     $select = $this->tableGateway->getSql()->select()->columns([
+    //         'min_weight',
+    //         'max_weight',
+    //         'shipping_method',
+    //         'shipping_rate'
+    //     ]);
+    //     $resultSet = $this->tableGateway->selectWith($select)->getDataSource();
+    //     $resultArray = iterator_to_array($resultSet);
 
-        return $resultArray;
-    }
+    //     return $resultArray;
+    // }
 
     public function fetchShippingMethods()
     {

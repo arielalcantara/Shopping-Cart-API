@@ -104,8 +104,7 @@ class JobController extends AppAbstractRestfulController
     {
         $jobOwner = $this->jobOrderTable->getCustomerIdByJob($job_order_id);
 
-        $authHeader = $this->getRequest()->getHeader('Authorization');
-        $customer_id = $this->tokenService->getCustomerIdInAccessToken($authHeader);
+        $customer_id = $this->getCustomerIdFromHeader();
 
         if ($customer_id != $jobOwner) {
             return $this->createResponse(403, 'Forbidden');

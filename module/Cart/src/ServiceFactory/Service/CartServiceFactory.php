@@ -1,16 +1,12 @@
 <?php
 namespace Cart\ServiceFactory\Service;
 
-use Psr\Container\ContainerInterface;
 use Cart\Service\CartService;
-use Shipping\Model\ShippingTable;
 
 class CartServiceFactory
 {
-    public function __invoke(ContainerInterface $container)
+    public function __invoke()
     {
-        $shippingTable = $container->get(ShippingTable::class);
-
-        return new CartService($shippingTable);
+        return new CartService();
     }
 }
