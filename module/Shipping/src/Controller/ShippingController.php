@@ -7,17 +7,18 @@ use Shipping\Filter\ShippingFilter;
 use Shipping\Model\ShippingTable;
 use Cart\Model\CartTable;
 use Cart\Model\Cart;
+use Cart\Service\CartService;
 use Shipping\Service\ShippingService;
-use Zend\View\Helper\Json;
 
 class ShippingController extends AppAbstractRestfulController
 {
-    // protected $eventIdentifier = 'SecuredController';
+    protected $eventIdentifier = 'SecuredController';
 
     private $shippingFilter;
     private $shippingTable;
     private $cartTable;
     private $cart;
+    private $cartService;
     private $shippingService;
 
     public function __construct(
@@ -25,12 +26,14 @@ class ShippingController extends AppAbstractRestfulController
         ShippingTable $shippingTable,
         CartTable $cartTable,
         Cart $cart,
+        CartService $cartService,
         ShippingService $shippingService
     ) {
         $this->shippingFilter = $shippingFilter;
         $this->shippingTable = $shippingTable;
         $this->cartTable = $cartTable;
         $this->cart = $cart;
+        $this->cartService = $cartService;
         $this->shippingService = $shippingService;
     }
 
@@ -38,97 +41,42 @@ class ShippingController extends AppAbstractRestfulController
     {
         $customer_id = $this->getCustomerIdFromHeader();
 
-        $cart = $this->cartTable->getCart($cart_id, $customer_id = '1');
-        // var_dump($cart); exit;
+        $cart = $this->cartTable->getCart($cart_id, $customer_id);
+
         if (!$cart) {
             return $this->createResponse(403, 'Forbidden');
         }
 
-        $this->shippingService->calculateShippingTotals($cart, $cart->shipping_method);
-        exit;
+        $shippingTotals = $this->shippingService->getShippingTotals($cart, $cart->shipping_method);
 
+        $data = [
+            'success' => true,
+            'data' => $shippingTotals
+        ];
 
-
-        // foreach ($shippingOptions as $shippingOption) {
-        //     $shippingTotals[$shippingOption['shipping_method']] =
-        //         $this->shippingService->calculateShippingTotal(
-        //             $cart['total_weight'],
-        //             $shippingOption['shipping_method']
-        //         );
-        // }
-
-        // $data = [
-        //     'success' => true,
-        //     'data' => $shippingTotals
-        // ];
-
-        // return new JsonModel($data);
-
-
-        // // Start of previous code
-        // $cartOwner = $this->cartTable->getCustomerIdByCart($cart_id);
-
-        // $customer_id = $this->getCustomerIdFromHeader();
-
-        // if ($customer_id != $cartOwner) {
-        //     return $this->createResponse(403, 'Forbidden');
-        // }
-
-        // $cart = $this->cartTable->fetchCartTotalWeight($cart_id);
-        // // Refactor
-        // $shippingOptions = $this->shippingTable->fetchShippingMethods(); // remove, fetch only inside shippingService
-
-        // foreach ($shippingOptions as $shippingOption) {
-        //     $shippingTotals[$shippingOption['shipping_method']] =
-        //         $this->shippingService->calculateShippingTotal(
-        //             $cart['total_weight'],
-        //             $shippingOption['shipping_method']
-        //         );
-        // }
-
-        // $data = [
-        //     'success' => true,
-        //     'data' => $shippingTotals
-        // ];
-
-        // return new JsonModel($data);
+        return new JsonModel($data);
     }
 
-    // public function create($input)
-    // {
-    //     $inputArray = $this->shippingFilter->validateAndSanitizeInput($input);
-    //     $cart_id = $inputArray['cart_id'];
+    public function create($input)
+    {
+        $inputArray = $this->shippingFilter->validateAndSanitizeInput($input);
 
-    //     $cartOwner = $this->cartTable->getCustomerIdByCart($cart_id);
+        if (!$this->shippingFilter->isValid()) {
+            return $this->createResponse(400, 'Invalid input.');
+        }
 
-    //     $customer_id = $this->getCustomerIdFromHeader();
+        $customer_id = $this->getCustomerIdFromHeader();
 
-    //     if ($customer_id != $cartOwner) {
-    //         return $this->createResponse(403, 'Forbidden');
-    //     }
+        $cart = $this->cartTable->getCart($inputArray['cart_id'], $customer_id);
 
-    //     if (!$this->shippingFilter->isValid()) {
-    //         return $this->createResponse(400, 'Invalid input.');
-    //     }
+        if (!$cart) {
+            return $this->createResponse(403, 'Forbidden');
+        }
 
-    //     $this->cart->exchangeArray($inputArray);
+        $this->cartService->updateCartShippingDetails($cart, $inputArray);
 
-    //     $cart = $this->cartTable->fetchCartTotalWeightAndSubTotal($cart_id);
-
-    //     $this->cart->shipping_total =$this->shippingService->calculateShippingTotal(
-    //         $cart['total_weight'],
-    //         $this->cart->shipping_method
-    //     );
-
-    //     $this->cart->total_amount = $this->shippingService->computeTotalAmount(
-    //         $cart['sub_total'],
-    //         $this->cart->shipping_total
-    //     );
-
-    //     $this->cartTable->updateCartShippingDetails($cart_id, $this->cart);
-
-    //     return new JsonModel([
-    //         'success' => true
-    //     ]);
-    // }
+        return new JsonModel([
+            'success' => true
+        ]);
+    }
 }

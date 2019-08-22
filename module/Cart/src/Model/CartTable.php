@@ -130,20 +130,6 @@ class CartTable
         return $result;
     }
 
-    public function fetchCartTotalWeightAndSubTotal($cart_id)
-    {
-        $cart_id = (int) $cart_id;
-        $select = $this->tableGateway->getSql()->select()->columns([
-            'total_weight',
-            'sub_total'
-        ])->where([
-            'cart_id' => $cart_id
-        ]);
-        $result = $this->tableGateway->selectWith($select)->getDataSource()->current();
-
-        return $result;
-    }
-
     public function getCustomerIdByCart($cart_id)
     {
         $cart_id = (int) $cart_id;
